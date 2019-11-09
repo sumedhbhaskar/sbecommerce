@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView
-from models import Item, Order, OrderItem
-from django.contrib import timezone
+from .models import Item, Order, OrderItem
+from django.utils import timezone
+from django.contrib import messages
 
 
 class HomeView(ListView):
@@ -26,8 +27,12 @@ def add_to_cart(request, slug):
         if order.items.filter(item__slug=item.slug).exists():
             order_item.quantity += 1
             order_item.save()
+            messages.info(request, " the quantity was modified for this item")
+            return redirect("core:product-page", slug=slug)  
         else:
-            order.items.add(order_item)    
+            messages.info(request, " this item was added in your exsiting order ")
+            order.items.add(order_item)
+            return redirect("core:product-page", slug=slug)      
     else:
 
         ordered_date = timezone.now()
@@ -36,8 +41,8 @@ def add_to_cart(request, slug):
             ordered_date = ordered_date 
         )
         order.items.add(order_item)
-
-    return redirect("core:product-page", slug=slug)    
+        message.info(request, " this item was added in the empty cart ")
+        return redirect("core:product-page", slug=slug)    
 
 def remove_from_cart(request, slug):
         item =  get_object_or_404(Item, slug = slug)
@@ -46,6 +51,7 @@ def remove_from_cart(request, slug):
             user=request.user,
             ordered = False
         )
+
         if order_qs.exists():
             order = order_qs[0]
             # we check ed whether ordered item was in the order
@@ -55,12 +61,15 @@ def remove_from_cart(request, slug):
                     user=request.user,
                     ordered=False
                 )[0]
+
                 order.items.remove(order_item)
+                messages.info(request, " this item was removed from your cart")
                 return redirect("core:product-page", slug=slug)
 
             else:
-               
+                messages.info(request, " item not found in the cart")                
                 return redirect("core:product-page", slug=slug)
 
-        #messages.INFO("")
+        messages.info(request, "")
         return redirect("core:product-page", slug=slug)     
+
