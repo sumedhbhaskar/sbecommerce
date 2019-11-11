@@ -7,6 +7,7 @@ from django.contrib import messages
 
 class HomeView(ListView):
     model = Item
+    paginate_by = 1 
     template_name = "home-page.html"
 class ItemView(DetailView):
     model = Item
