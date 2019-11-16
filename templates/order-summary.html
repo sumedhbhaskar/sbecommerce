@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+  
+{% include "navbar.html" %}
+
+  <!--Main layout-->
+  <main>
+    <div class="container">
+
+      <div class="table-responsive text-nowrap">
+
+  <table class="table">
+
+    <thead>
+    <h2>Order Summary</h2>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Item</th>
+        <th scope="col">
+            Price
+        </th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Total Price</th>
+
+
+      </tr>
+    </thead>
+    <tbody>
+        {% for order_item in object.items.all %}
+        <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ order_item.item.title }}</td>
+        <td>
+            {% if order_item.item.discount_price %}
+                {{ order_item.item.discount_price }}
+            {% else %}
+                {{ order_item.item.price }}
+            {% endif %}
+        </td>
+        <td>{{ order_item.quantity }}</td>
+        <td>
+            {% if order_item.item.discount_price %}
+                {{ order_item.get_total_item_discount_price }}  <span class=" badge badge-primary" >  saving:{{ order_item.get_amount_saved }} </span>
+            {% else %}
+                {{ order_item.get_total_item_price }}
+            {% endif %}
+        </td>
+        </tr>
+        
+
+        {% endfor %}
+    </tbody>
+  </table>
+  <div class="float-right">
+            <a class="btn btn-primary">Proceed</a>
+        </div>
+
+    </div>
+
+</div>
+
+    
+  </main>
+  <!--Main layout-->
+
+  
+
+{% endblock %}

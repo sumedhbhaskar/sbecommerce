@@ -1,13 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 from .models import Item, Order, OrderItem
 from django.utils import timezone
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
+class OrderSummaryView(LoginRequiredMixin,View):
+    def get(self, *args, **kwargs):
+        try:    
+            order = Order.objects.get(user=self.request.user ,ordered = False )
+            context = {
+                'object' : order
+            }
+            return render(self.request, 'order-summary.html', context)
+
+        except ObjectDoesNotExist:
+            messages.error(self.request, "You don not have an active order.")
+            return redirect("/")
+
+       
+    
 
 
 class HomeView(ListView):
     model = Item
-    paginate_by = 1 
+    paginate_by = 10 
     template_name = "home-page.html"
 class ItemView(DetailView):
     model = Item
@@ -16,6 +36,8 @@ class ItemView(DetailView):
 def checkout(request):
     return render(request, "checkout-page.html")
 
+
+@login_required
 def add_to_cart(request, slug):
 
     item =  get_object_or_404(Item, slug = slug)
@@ -43,8 +65,10 @@ def add_to_cart(request, slug):
         )
         order.items.add(order_item)
         message.info(request, " this item was added in the empty cart ")
-        return redirect("core:product-page", slug=slug)    
+        return redirect("core:product-page", slug=slug)   
 
+
+@login_required
 def remove_from_cart(request, slug):
         item =  get_object_or_404(Item, slug = slug)
 
@@ -72,5 +96,32 @@ def remove_from_cart(request, slug):
                 return redirect("core:product-page", slug=slug)
 
         messages.info(request, "")
-        return redirect("core:product-page", slug=slug)     
+        return redirect("core:product-page", slug=slug)  
+
+
+
+@login_required
+def decrease_item_from_cart(request, slug):
+    item =  get_object_or_404(Item, slug = slug)
+    order_qs = Order.objects.filter(
+            user=request.user,
+            ordered = False
+        )
+    if order_qs.exists():
+        order = order_qs[0]
+        if order.items.filter(item__slug=item.slug).exists():
+            order_item = OrderItem.objects.get(
+                user=request.user,
+                item=item,
+                ordered=False
+            )
+            order_item -= 1
+            order_item.save()
+            return redirect("core:order", slug=slug)
+
+
+
+
+
+
 
