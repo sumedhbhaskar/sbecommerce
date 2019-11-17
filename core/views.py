@@ -51,11 +51,11 @@ def add_to_cart(request, slug):
             order_item.quantity += 1
             order_item.save()
             messages.info(request, " the quantity was modified for this item")
-            return redirect("core:product-page", slug=slug)  
+            return redirect("core:order-summary")  
         else:
             messages.info(request, " this item was added in your exsiting order ")
             order.items.add(order_item)
-            return redirect("core:product-page", slug=slug)      
+            return redirect("core:order-summary")      
     else:
 
         ordered_date = timezone.now()
@@ -65,7 +65,7 @@ def add_to_cart(request, slug):
         )
         order.items.add(order_item)
         message.info(request, " this item was added in the empty cart ")
-        return redirect("core:product-page", slug=slug)   
+        return redirect("core:order-summary")   
 
 
 @login_required
@@ -88,36 +88,51 @@ def remove_from_cart(request, slug):
                 )[0]
 
                 order.items.remove(order_item)
+                order_item.quantity = 1
+                order_item.save()
                 messages.info(request, " this item was removed from your cart")
-                return redirect("core:product-page", slug=slug)
+                return redirect("core:order-summary")
 
             else:
                 messages.info(request, " item not found in the cart")                
                 return redirect("core:product-page", slug=slug)
 
-        messages.info(request, "")
+        messages.info(request, "you do not have an active order")
         return redirect("core:product-page", slug=slug)  
 
 
 
 @login_required
-def decrease_item_from_cart(request, slug):
+def decrease_single_item_from_cart(request, slug):
     item =  get_object_or_404(Item, slug = slug)
+
     order_qs = Order.objects.filter(
-            user=request.user,
-            ordered = False
-        )
+        user=request.user,
+        ordered = False
+    )
+
     if order_qs.exists():
         order = order_qs[0]
+        # we check ed whether ordered item was in the order
         if order.items.filter(item__slug=item.slug).exists():
-            order_item = OrderItem.objects.get(
-                user=request.user,
+            order_item = OrderItem.objects.filter(
                 item=item,
+                user=request.user,
                 ordered=False
-            )
-            order_item -= 1
-            order_item.save()
-            return redirect("core:order", slug=slug)
+            )[0]
+
+            order_item.quantity -= 1
+            order_item.save()    
+            messages.info(request, " this item was modified")
+            return redirect("core:order-summary")
+
+        else:
+            messages.info(request, " item not found in the cart")                
+            return redirect("core:product-page", slug=slug)
+
+    messages.info(request, "")
+    return redirect("core:product-page", slug=slug)  
+
 
 
 

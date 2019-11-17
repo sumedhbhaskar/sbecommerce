@@ -1,72 +1,92 @@
-{% extends 'base.html' %}
+ {% extends 'base.html' %}
 {% load static %}
 
 
 {% block content %}
 
-  
+
 {% include "navbar.html" %}
 
-  <!--Main layout-->
-  <main>
-    <div class="container">
-
-      <div class="table-responsive text-nowrap">
-
-  <table class="table">
-
-    <thead>
-    <h2>Order Summary</h2>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Item</th>
-        <th scope="col">
-            Price
-        </th>
-        <th scope="col">Quantity</th>
-        <th scope="col">Total Price</th>
-
-
-      </tr>
-    </thead>
-    <tbody>
-        {% for order_item in object.items.all %}
-        <tr>
-        <th scope="row">{{ forloop.counter }}</th>
-        <td>{{ order_item.item.title }}</td>
-        <td>
-            {% if order_item.item.discount_price %}
-                {{ order_item.item.discount_price }}
-            {% else %}
-                {{ order_item.item.price }}
-            {% endif %}
-        </td>
-        <td>{{ order_item.quantity }}</td>
-        <td>
-            {% if order_item.item.discount_price %}
-                {{ order_item.get_total_item_discount_price }}  <span class=" badge badge-primary" >  saving:{{ order_item.get_amount_saved }} </span>
-            {% else %}
-                {{ order_item.get_total_item_price }}
-            {% endif %}
-        </td>
+<!--Main layout-->
+<main>
+  <div class="container">
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead>
+          <h2>Order Summary</h2>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Item</th>
+            <th scope="col">
+              Price
+            </th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          {% for order_item in object.items.all %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ order_item.item.title }}</td>
+            <td>
+              {% if order_item.item.discount_price %}
+              {{ order_item.item.discount_price }}
+              {% else %}
+              {{ order_item.item.price }}
+              {% endif %}
+            </td>
+            <td><a href="{% url 'core:add-to-cart' order_item.item.slug %}" class="mr-2"><i class="fas fa-plus-square"></i></a>
+              {{ order_item.quantity }}
+              <a href="{% url 'core:decrease-single-item-from-cart' order_item.item.slug %}" class="ml-2"> <i class="fas fa-minus"></i></a>
+            </td>
+            <td>
+              {% if order_item.item.discount_price %}
+              {{ order_item.get_total_item_discount_price }} <span class="badge
+                badge-primary"> saving:{{ order_item.get_amount_saved }} </span>
+              {% else %}
+              {{ order_item.get_total_item_price }}
+              {% endif %}
+              <a style='color: red;' href="{% url 'core:remove-from-cart' order_item.item.slug %}">
+                  <i class="fas fa-trash float-right"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan='5'>Your cart is empty</td>
+          </tr>
+          <tr>
+          <td colspan="5">
+            <a class='btn btn-primary float-right' href='/'>Continue shopping</a>
+          </td>
         </tr>
-        
 
-        {% endfor %}
-    </tbody>
-  </table>
-  <div class="float-right">
-            <a class="btn btn-primary">Proceed</a>
-        </div>
+
+          {% endfor %}
+
+          <tr>
+            <td colspan="4"><b>Order Total</b></td>
+            <td>{{ object.get_total }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="float-right">
+        <a href="/" class="btn btn-default">Continue Shopping</a>
+      </div>
+      <div class="float-right">
+        <a class="btn btn-primary">Proceed</a>
+      </div>
 
     </div>
 
-</div>
+  </div>
 
-    
-  </main>
-  <!--Main layout-->
 
-  
+</main>
+<!--Main layout-->
+
+
 
 {% endblock %}
