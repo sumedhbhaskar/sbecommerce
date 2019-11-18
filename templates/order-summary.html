@@ -1,4 +1,4 @@
- {% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 
@@ -25,7 +25,7 @@
           </tr>
         </thead>
         <tbody>
-          
+
           {% for order_item in object.items.all %}
           <tr>
             <th scope="row">{{ forloop.counter }}</th>
@@ -37,9 +37,11 @@
               {{ order_item.item.price }}
               {% endif %}
             </td>
-            <td><a href="{% url 'core:add-to-cart' order_item.item.slug %}" class="mr-2"><i class="fas fa-plus-square"></i></a>
+            <td><a href="{% url 'core:add-to-cart' order_item.item.slug %}" class="mr-2"><i
+                  class="fas fa-plus-square"></i></a>
               {{ order_item.quantity }}
-              <a href="{% url 'core:decrease-single-item-from-cart' order_item.item.slug %}" class="ml-2"> <i class="fas fa-minus"></i></a>
+              <a href="{% url 'core:decrease-single-item-from-cart' order_item.item.slug %}" class="ml-2"> <i
+                  class="fas fa-minus"></i></a>
             </td>
             <td>
               {% if order_item.item.discount_price %}
@@ -49,7 +51,7 @@
               {{ order_item.get_total_item_price }}
               {% endif %}
               <a style='color: red;' href="{% url 'core:remove-from-cart' order_item.item.slug %}">
-                  <i class="fas fa-trash float-right"></i>
+                <i class="fas fa-trash float-right"></i>
               </a>
             </td>
           </tr>
@@ -58,10 +60,10 @@
             <td colspan='5'>Your cart is empty</td>
           </tr>
           <tr>
-          <td colspan="5">
-            <a class='btn btn-primary float-right' href='/'>Continue shopping</a>
-          </td>
-        </tr>
+            <td colspan="5">
+              <a class='btn btn-primary float-right' href='/'>Continue shopping</a>
+            </td>
+          </tr>
 
 
           {% endfor %}
@@ -76,7 +78,7 @@
         <a href="/" class="btn btn-default">Continue Shopping</a>
       </div>
       <div class="float-right">
-        <a class="btn btn-primary">Proceed</a>
+        <a href="/checkout/" class="btn btn-primary">Proceed</a>
       </div>
 
     </div>
