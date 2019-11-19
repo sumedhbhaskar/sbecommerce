@@ -32,13 +32,16 @@
             <td>{{ order_item.item.title }}</td>
             <td>
               {% if order_item.item.discount_price %}
-              {{ order_item.item.discount_price }}
+             i class="list-group-item d-flex justify-content-between lh-condensed">
+            <div>
+              <h6 class="my-0">Product name</h6>
+               {{ order_item.item.discount_price }}
               {% else %}
               {{ order_item.item.price }}
               {% endif %}
             </td>
-            <td><a href="{% url 'core:add-to-cart' order_item.item.slug %}" class="mr-2"><i
-                  class="fas fa-plus-square"></i></a>
+            <td><a href="{% url 'core:add-to-cart' order_item.item.slug %}" class="mr-2">
+            <i class="fas fa-plus-square"></i></a>
               {{ order_item.quantity }}
               <a href="{% url 'core:decrease-single-item-from-cart' order_item.item.slug %}" class="ml-2"> <i
                   class="fas fa-minus"></i></a>
